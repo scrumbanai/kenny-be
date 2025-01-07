@@ -24,5 +24,5 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
