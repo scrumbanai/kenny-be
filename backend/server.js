@@ -15,6 +15,12 @@ app.use(express.json());
 // Connect to DB
 connectDB();
 
+// Allow requests from your frontend URL
+app.use(cors({
+  origin: process.env.FRONTEND_URL, // Use the FRONTEND_URL environment variable
+  credentials: true, // Allow cookies and credentials
+}));
+
 // Root Route
 app.get('/', (req, res) => {
   res.send('Welcome to My Backend API! Use /api/auth for authentication-related endpoints.');
