@@ -15,6 +15,11 @@ app.use(express.json());
 // Connect to DB
 connectDB();
 
+// Root Route
+app.get('/', (req, res) => {
+  res.send('Welcome to My Backend API! Use /api/auth for authentication-related endpoints.');
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 
