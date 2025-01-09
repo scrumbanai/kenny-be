@@ -17,10 +17,27 @@ steps:
     cd backend
     npm install
   displayName: 'npm install'
-  
-# Or alternatively, you can use workingDirectory:
-# - script: |
-#     npm install
-#     npm run build
-#   displayName: 'npm install and build'
-#   workingDirectory: $(Build.SourcesDirectory)/backend
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'backend'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+  displayName: 'Create ZIP file'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'drop'
+    publishLocation: 'Container'
+  displayName: 'Publish artifacts'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'afdccb27-ea60-453e-826e-825022569fc4'  # You'll need to replace this
+    appName: 'my-backend'                             # Replace with your Web App name
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+    deploymentMethod: 'auto'
+  displayName: 'Deploy to Azure Web App'
