@@ -1,5 +1,7 @@
 # Node.js Express Web App to Linux on Azure
 # Build a Node.js Express app and deploy it to Azure as a Linux web app.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
 - main
@@ -7,13 +9,13 @@ trigger:
 variables:
   # Azure Resource Manager connection created during pipeline creation
   azureSubscription: 'b9620c39-12e9-44da-aa61-fa45a8da8c59'
-
+  
   # Web app name
   webAppName: 'ore-server'
-
+  
   # Environment name
   environmentName: 'ore-server'
-
+  
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
@@ -32,20 +34,36 @@ stages:
         versionSpec: '20.x'
       displayName: 'Install Node.js'
 
+    # Add caching to speed up builds
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | backend/package-lock.json'
+        path: '$(npm_config_cache)'
+      displayName: 'Cache npm packages'
+
+    # Install and build
     - script: |
         cd backend
-        npm install
+        npm ci  # Using ci instead of install for more reliable builds
         npm run build --if-present
-      displayName: 'npm install and build'
+#       npm run test --if-present
+      displayName: 'npm install, build and test'
 
+    # Archive only the backend directory with necessary files
     - task: ArchiveFiles@2
-      displayName: 'Archive backend files'
+      displayName: 'Archive files'
       inputs:
         rootFolderOrFile: '$(System.DefaultWorkingDirectory)/backend'
         includeRootFolder: false
         archiveType: zip
         archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
         replaceExistingArchive: true
+
+    # Print contents of archive for verification
+    - script: |
+        echo "Archive contents:"
+        unzip -l $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      displayName: 'List Archive Contents'
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       artifact: drop
@@ -65,11 +83,11 @@ stages:
         deploy:
           steps:
           - task: AzureWebApp@1
-            displayName: 'Azure Web App Deploy: $(webAppName)'
+            displayName: 'Azure Web App Deploy: ore-server'
             inputs:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
               appName: $(webAppName)
               runtimeStack: 'NODE|20LTS'
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
-              startUpCommand: 'npm start'
+              startUpCommand: 'npm run start'
