@@ -34,13 +34,6 @@ stages:
         versionSpec: '20.x'
       displayName: 'Install Node.js'
 
-    # Add caching to speed up builds
-    - task: Cache@2
-      inputs:
-        key: 'npm | "$(Agent.OS)" | backend/package-lock.json'
-        path: '$(npm_config_cache)'
-      displayName: 'Cache npm packages'
-
     # Install and build
     - script: |
         cd backend
