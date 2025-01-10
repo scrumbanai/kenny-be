@@ -7,15 +7,16 @@ trigger:
 - main
 
 variables:
+
   # Azure Resource Manager connection created during pipeline creation
   azureSubscription: 'b9620c39-12e9-44da-aa61-fa45a8da8c59'
-  
+
   # Web app name
   webAppName: 'ore-server'
-  
+
   # Environment name
   environmentName: 'ore-server'
-  
+
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
@@ -34,15 +35,13 @@ stages:
         versionSpec: '20.x'
       displayName: 'Install Node.js'
 
-    # Install and build
     - script: |
         cd backend
-        npm ci  # Using ci instead of install for more reliable builds
+        npm install
         npm run build --if-present
-#       npm run test --if-present
+        // npm run test --if-present
       displayName: 'npm install, build and test'
 
-    # Archive only the backend directory with necessary files
     - task: ArchiveFiles@2
       displayName: 'Archive files'
       inputs:
@@ -52,21 +51,8 @@ stages:
         archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
         replaceExistingArchive: true
 
-    # Print contents of archive for verification
-    - script: |
-        echo "Archive contents:"
-        unzip -l $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      displayName: 'List Archive Contents'
-
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       artifact: drop
-
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_92776E3BCBA4400AAB0CD46BCB79F582 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C91CD54C20E947598F7D54033260BB3F }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A339AA3A455D451D9FBDA3C4DE292677 }}
 
 - stage: Deploy
   displayName: Deploy stage
