@@ -26,6 +26,11 @@ app.use(cors({
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
+// Root Route
+ app.get('/', (req, res) => {
+  res.send('Welcome to My Backend API! Use /api/auth for authentication-related endpoints.');
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 
