@@ -61,6 +61,13 @@ stages:
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       artifact: drop
 
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_92776E3BCBA4400AAB0CD46BCB79F582 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C91CD54C20E947598F7D54033260BB3F }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A339AA3A455D451D9FBDA3C4DE292677 }}
+
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
