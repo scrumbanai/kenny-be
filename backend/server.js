@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db'); // MongoDB connection
 const authRoutes = require('./routes/authRoutes');
-
+const axios = require('axios'); // Add axios for API requests
 
 dotenv.config();
 
