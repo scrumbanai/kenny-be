@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db'); // MongoDB connection
 const authRoutes = require('./routes/authRoutes');
+const axios = require('axios'); // Add axios for API requests
 
 dotenv.config();
 
@@ -28,6 +29,33 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+
+// Chatbot Endpoint
+app.post('/api/chat', async (req, res) => {
+  const { message } = req.body;
+  if (!message) {
+    return res.status(400).json({ error: 'Message is required' });
+  }
+
+  try {
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GOOGLE_API_KEY}`,
+      {
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: message }],
+          },
+        ],
+      }
+    );
+    const reply = response.data.candidates[0].content.parts[0].text;
+    res.json({ reply });
+  } catch (error) {
+    console.error('Error communicating with Google Generative AI API:', error);
+    res.status(500).json({ error: 'Failed to get chatbot response' });
+  }
+});
 
 // Start the server
 const PORT = process.env.PORT || 8080;

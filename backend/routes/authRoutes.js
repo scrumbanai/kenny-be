@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const { signup, login } = require('../controllers/authController'); // Import the signup and login controllers
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware'); // Import the middleware
 
 // Add the signup and login routes
 router.post('/signup', signup);
@@ -83,6 +84,13 @@ router.post('/reset-password', async (req, res) => {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// Example of a protected route
+router.get('/protected', authMiddleware, (req, res) => {
+  res.json({ message: 'This is a protected route', userId: req.userId });
+
+
 });
 
 // Only export the router once at the end of the file
