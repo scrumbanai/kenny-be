@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db'); // MongoDB connection
 const authRoutes = require('./routes/authRoutes');
-const axios = require('axios'); // Add axios for API requests
+const { GoogleGenerativeAI } = require('@google/generative-ai'); // Use the Google Generative AI SDK
 
 dotenv.config();
 
@@ -12,8 +12,6 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-
 
 // Connect to DB
 connectDB();
@@ -24,10 +22,9 @@ app.use(cors({
   credentials: true, // Allow cookies and credentials
 }));
 
-// Root Route
-app.get('/', (req, res) => {
-  res.send('Welcome to My Backend API! Use /api/auth for authentication-related endpoints.');
-});
+// Initialize Google Generative AI
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -40,18 +37,9 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
-    const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GOOGLE_API_KEY}`,
-      {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: message }],
-          },
-        ],
-      }
-    );
-    const reply = response.data.candidates[0].content.parts[0].text;
+    // Generate content using the Gemini model
+    const result = await model.generateContent(message);
+    const reply = result.response.text(); // Extract the response text
     res.json({ reply });
   } catch (error) {
     console.error('Error communicating with Google Generative AI API:', error);
