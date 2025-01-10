@@ -5,7 +5,7 @@ const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const { signup, login } = require('../controllers/authController'); // Import the signup and login controllers
 const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware'); // Import the middleware
+const authMiddleware = require('../middleware/authMiddleware.js'); // Import the middleware
 
 // Add the signup and login routes
 router.post('/signup', signup);
