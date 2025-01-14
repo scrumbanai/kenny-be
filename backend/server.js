@@ -5,6 +5,10 @@ const connectDB = require('./config/db'); // MongoDB connection
 const authRoutes = require('./routes/authRoutes');
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Use the Google Generative AI SDK
 
+const fetch = require('node-fetch');
+global.fetch = fetch; // Make fetch globally available
+
+
 dotenv.config(); // Load environment variables from .env file
 
 const app = express();
