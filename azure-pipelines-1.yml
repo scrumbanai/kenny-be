@@ -36,10 +36,11 @@ stages:
       displayName: 'Install Node.js'
 
     - script: |
-        npm install
-        npm run build --if-present
-        npm run test --if-present
-      displayName: 'npm install, build and test'
+    cd backend
+    npm install
+    npm run build
+    npm test
+  displayName: 'npm install, build and test'
 
     - task: ArchiveFiles@2
       displayName: 'Archive files'
